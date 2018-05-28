@@ -53,12 +53,31 @@ class Plugin extends PluginBase
      */
     public function registerPermissions()
     {
-        return []; // Remove this line to activate
-
         return [
-            'bedard.backup.access_backups' => [
+            'bedard.backup.access_settings' => [
                 'tab' => 'Backup',
-                'label' => 'Manage backups'
+                'label' => 'Manage backup settings'
+            ],
+        ];
+    }
+
+    /**
+     * Register settings model.
+     *
+     * @return array
+     */
+    public function registerSettings()
+    {
+        return [
+            'settings' => [
+                'class' => 'Bedard\Backup\Models\Settings',
+                'description' => 'Manage automatic backups',
+                'icon' => 'icon-database',
+                'label' => 'Manage Backups',
+                'order' => 500,
+                'permissions' => [
+                    'bedard.backup.access_settings',
+                ],
             ],
         ];
     }
