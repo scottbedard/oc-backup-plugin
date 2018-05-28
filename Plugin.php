@@ -77,20 +77,29 @@ class Plugin extends PluginBase
         $time = explode(' ', Settings::get('time', '0000-00-00 00:00:00'))[1];
 
         // determine what the backup command should be
-        $backup = 'backup:run';
-        if ($scope === 'db') $backup = 'backup:run --only-db';
-        elseif ($scope === 'files') $backup = 'backup:run --only-files';
+        $cmd = 'backup:run';
+        if ($scope === 'db') $cmd = 'backup:run --only-db';
+        elseif ($scope === 'files') $cmd = 'backup:run --only-files';
 
         // schedule the backup command
+        $backup = $schedule->command($cmd);
+
         if ($frequency === 'daily') {
             $schedule->command('backup:clean')->daily()->at($time);
-            $schedule->command($backup)->daily()->at($time);
+            $backup->daily()->at($time);
         } else if ($frequency === 'weekly') {
             $schedule->command('backup:clean')->weekly();
-            $schedule->command($backup)->weekly();
+            $backup->weekly();
         } else if ($frequency === 'monthly') {
             $schedule->command('backup:clean')->monthly();
-            $schedule->command($backup)->monthly();
+            $backup->monthly();
+        }
+
+        // ping the heartbeat url if one was provided
+        $heartbeatUrl = trim(Settings::get('heartbeat_url', ''));
+
+        if ($heartbeatUrl) {
+            $backup->thenPing($heartbeatUrl);
         }
     }
 

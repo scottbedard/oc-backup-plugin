@@ -5,7 +5,6 @@
 fields:
     is_enabled:
         label: Automatic Backups
-        comment: When "off", no backups will be generated.
         type: switch
 
     scope:
@@ -44,3 +43,12 @@ fields:
             field: is_enabled
             condition: checked
         type: datepicker
+
+    heatbeat_url:
+        comment: This URL will be pinged following successful backups.
+        label: Heartbeat URL
+        span: left
+        trigger:
+            action: show
+            field: is_enabled
+            condition: checked
