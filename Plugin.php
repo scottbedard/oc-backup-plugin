@@ -1,6 +1,7 @@
 <?php namespace Bedard\Backup;
 
 use Backend;
+use Bedard\Backup\Models\Settings;
 use System\Classes\PluginBase;
 
 /**
@@ -17,7 +18,7 @@ class Plugin extends PluginBase
     {
         return [
             'name'        => 'Backup',
-            'description' => 'Automatically back up your October application',
+            'description' => 'Automatically back up your October application.',
             'author'      => 'Scott Bedard',
             'icon'        => 'icon-database'
         ];
@@ -43,7 +44,6 @@ class Plugin extends PluginBase
      */
     public function boot()
     {
-
     }
 
     /**
@@ -62,6 +62,39 @@ class Plugin extends PluginBase
     }
 
     /**
+     * Register scheduled tasks.
+     * 
+     * @return void
+     */
+    public function registerSchedule($schedule)
+    {
+        // do nothing if backups aren't enabled
+        if (!Settings::get('is_enabled', false)) return;
+
+        // get our scheduling configuration
+        $scope = Settings::get('scope', 'everything'); // db, files, everything
+        $frequency = Settings::get('frequency', 'daily'); // daily, weekly, monthly
+        $time = explode(' ', Settings::get('time', '0000-00-00 00:00:00'))[1];
+
+        // determine what the backup command should be
+        $backup = 'backup:run';
+        if ($scope === 'db') $backup = 'backup:run --only-db';
+        elseif ($scope === 'files') $backup = 'backup:run --only-files';
+
+        // schedule the backup command
+        if ($frequency === 'daily') {
+            $schedule->command('backup:clean')->daily()->at($time);
+            $schedule->command($backup)->daily()->at($time);
+        } else if ($frequency === 'weekly') {
+            $schedule->command('backup:clean')->weekly();
+            $schedule->command($backup)->weekly();
+        } else if ($frequency === 'monthly') {
+            $schedule->command('backup:clean')->monthly();
+            $schedule->command($backup)->monthly();
+        }
+    }
+
+    /**
      * Register settings model.
      *
      * @return array
@@ -71,9 +104,9 @@ class Plugin extends PluginBase
         return [
             'settings' => [
                 'class' => 'Bedard\Backup\Models\Settings',
-                'description' => 'Manage automatic backups',
+                'description' => 'Manage automated backup settings.',
                 'icon' => 'icon-database',
-                'label' => 'Manage Backups',
+                'label' => 'Backups',
                 'order' => 500,
                 'permissions' => [
                     'bedard.backup.access_settings',
