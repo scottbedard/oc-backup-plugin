@@ -1,0 +1,9 @@
+{
+    "name": "bedard/oc-backup-plugin",
+    "description": "Automatically back up your October applications",
+    "type": "october-plugin",
+    "license": "MIT",
+    "require": {
+        "spatie/laravel-backup": "^5.7"
+    }
+}

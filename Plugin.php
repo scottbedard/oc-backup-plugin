@@ -30,7 +30,10 @@ class Plugin extends PluginBase
      */
     public function register()
     {
-
+        $this->registerConsoleCommand('backup.run', 'Spatie\Backup\Commands\BackupCommand');
+        $this->registerConsoleCommand('backup.cleanup', 'Spatie\Backup\Commands\CleanupCommand');
+        $this->registerConsoleCommand('backup.list', 'Spatie\Backup\Commands\ListCommand');
+        $this->registerConsoleCommand('backup.monitor', 'Spatie\Backup\Commands\MonitorCommand');
     }
 
     /**
